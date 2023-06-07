@@ -7,6 +7,7 @@ const Networker = require('./networker');
 
 const clients = [];
 const usedWordMap = new Map();
+let activeLetter = null;
 let wordCount = 0;
 let wordCountCopy = 0;
 let turnsCount = 0;
@@ -33,8 +34,9 @@ server.on('connection', (socket) => {
 
   function handleData(data) {
     const word = data.toString().toLowerCase();
-    if (wordMap.has(word) && !usedWordMap.has(word)) {
+    if (wordMap.has(word) && !usedWordMap.has(word) && (word.charAt(0) === activeLetter || turnsCount === 1)) {
       wordCount += 1;
+      activeLetter = word.charAt(word.length - 1);
       usedWordMap.set(word, null);
       console.log(`The word "${word}" exists in the dictionary.`);
       networker.send('Good job!');
