@@ -6,6 +6,7 @@ const wordMap = require('./dictionary.js');
 const Networker = require('./networker');
 
 const clients = [];
+const usedWordMap = new Map();
 let wordCount = 0;
 let wordCountCopy = 0;
 let turnsCount = 0;
@@ -32,13 +33,14 @@ server.on('connection', (socket) => {
 
   function handleData(data) {
     const word = data.toString().toLowerCase();
-    if (wordMap.has(word)) {
+    if (wordMap.has(word) && !usedWordMap.has(word)) {
       wordCount += 1;
+      usedWordMap.set(word, null);
       console.log(`The word "${word}" exists in the dictionary.`);
       networker.send('Good job!');
     } else {
-      console.log(`The word "${word}" does not exist in the dictionary.`);
-      networker.send('The word does not exist. Try again');
+      console.log(`The word "${word}" does not exist in the dictionary / has already been used.`);
+      networker.send('The word does not exist / has already been used. Try again');
     }
   }
 
@@ -66,6 +68,7 @@ function startGame() {
           user.networker.send('You won!');
         }
       }
+      server.unref();
       return;
     }
     wordCountCopy = wordCount;
