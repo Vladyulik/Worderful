@@ -1,18 +1,21 @@
 'use strict';
 
 const net = require('net');
-
-const socket = new net.Socket();
-
-socket.on('data', (data) => {
-  console.log('Received:', data);
+const Networker = require('./networker');
+const readline = require('readline').createInterface({
+  input: process.stdin,
+  output: process.stdout
 });
 
-socket.connect({
-  port: 8000,
-  host: '127.0.0.1',
-}, () => {
-  socket.write('Hi');
-});
+const socket = net.createConnection({ port: 8000, host: 'localhost' });
 
-//socket.unref();
+socket.on('connect', () => {
+  const networker = new Networker(socket, (data) => {
+    console.log(data.toString());
+  });
+  networker.init();
+  readline.on('line', (word) => {
+    word = word.toLowerCase();
+    networker.send(word);
+  });
+});
