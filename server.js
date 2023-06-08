@@ -79,6 +79,9 @@ function startGame() {
   wordCountCopy = wordCount;
   activeClient = clients[wordCount % clients.length];
   activeClient.networker.send('Now it`s your turn!');
+  if (activeLetter) {
+    activeClient.networker.send(`Start with letter "${activeLetter}"`);
+  }
   gameInterval = setInterval(startGame, 10000);
 }
 
