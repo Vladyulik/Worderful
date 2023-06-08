@@ -10,11 +10,12 @@ const readline = require('readline').createInterface({
 const socket = net.createConnection({ port: 8000, host: 'localhost' });
 
 socket.on('connect', () => {
+  readline.pause();
   const networker = new Networker(socket, (data) => {
     const text = data.toString();
-    console.log(text);
     switch (text) {
     case 'Now it`s your turn!':
+      console.clear();
       readline.resume();
       break;
     case 'Good job!':
@@ -31,6 +32,7 @@ socket.on('connect', () => {
     default:
       break;
     }
+    console.log(text);
   });
   networker.init();
   readline.on('line', (word) => {
