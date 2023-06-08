@@ -35,7 +35,17 @@ server.on('connection', (socket) => {
 
   function handleData(data) {
     const word = data.toString().toLowerCase();
-    if (wordMap.has(word) && !usedWordMap.has(word) && (word.charAt(0) === activeLetter || turnsCount === 1)) {
+    if (wordMap.has(word)) {
+      if (usedWordMap.has(word)) {
+        console.log(`The word "${word}" has already been used.`);
+        networker.send('This word has already been used. Try again');
+        return;
+      }
+      if (!(word.charAt(0) === activeLetter || turnsCount === 1)) {
+        console.log(`The word "${word}" starts with wrong letter.`);
+        networker.send('This word starts with wrong letter. Try again');
+        return;
+      }
       wordCount += 1;
       activeLetter = word.charAt(word.length - 1);
       usedWordMap.set(word, null);
@@ -44,15 +54,16 @@ server.on('connection', (socket) => {
       finishGame();
       startGame();
     } else {
-      console.log(`The word "${word}" does not exist in the dictionary / has already been used.`);
-      networker.send('The word does not exist / has already been used. Try again');
+      console.log(`The word "${word}" does not exist in the dictionary.`);
+      networker.send('This word does not exist. Try again');
     }
   }
 
   activeClient = { socket, networker };
   clients.push(activeClient);
   if (clients.length === 2) {
-    console.log('The minimum amount of players is reached.\nThe game will start in 5 seconds');
+    console.log('The minimum amount of players is reached');
+    console.log('The game will start in 5 seconds');
     setTimeout(startGame, 5000);
   }
 });
