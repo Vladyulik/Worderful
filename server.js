@@ -12,7 +12,7 @@ let activeClient = null;
 let wordCount = 0;
 let wordCountCopy = 0;
 let turnsCount = 0;
-let gameInterval;
+let gameInterval = null;
 const server = net.createServer();
 
 server.on('connection', (socket) => {
@@ -75,17 +75,20 @@ server.on('error', (e) => {
 function startGame() {
   turnsCount += 1;
   if (wordCountCopy === wordCount && turnsCount > 1) {
-    console.log('The game is over!');
-    finishGame();
     activeClient.networker.send('You lost...');
-    const clientId = activeClient.socket.id;
-    for (const user of clients) {
-      if (user.socket.id !== clientId) {
-        user.networker.send('You won!');
+    for (let i = 0; i < clients.length; i++) {
+      if (clients[i] === activeClient) {
+        clients.splice(i, 1);
       }
     }
-    server.unref();
-    return;
+    if (clients.length < 2) {
+      finishGame();
+      activeClient = clients[0];
+      activeClient.networker.send('You won!');
+      console.log('The game is over!');
+      server.unref();
+      return;
+    }
   }
   wordCountCopy = wordCount;
   activeClient = clients[wordCount % clients.length];
@@ -93,11 +96,13 @@ function startGame() {
   if (activeLetter) {
     activeClient.networker.send(`Start with letter "${activeLetter}"`);
   }
+  finishGame();
   gameInterval = setInterval(startGame, 10000);
 }
 
 function finishGame() {
   clearInterval(gameInterval);
+  gameInterval = null;
 }
 
 server.listen(8000);
