@@ -76,6 +76,7 @@ function startGame() {
   turnsCount += 1;
   if (wordCountCopy === wordCount && turnsCount > 1) {
     activeClient.networker.send('You lost...');
+    console.log(`The player ${activeClient.socket.id} has lost`);
     for (let i = 0; i < clients.length; i++) {
       if (clients[i] === activeClient) {
         clients.splice(i, 1);
@@ -85,6 +86,7 @@ function startGame() {
       finishGame();
       activeClient = clients[0];
       activeClient.networker.send('You won!');
+      console.log(`The player ${activeClient.socket.id} has won`);
       console.log('The game is over!');
       server.unref();
       return;
