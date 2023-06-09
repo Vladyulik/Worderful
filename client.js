@@ -35,8 +35,8 @@ socket.on('connect', () => {
     console.log(text);
   });
   networker.init();
-  readline.on('line', (word) => {
-    word = word.toLowerCase();
+  readline.on('line', (answer) => {
+    const word = answer.trim().toLowerCase();
     networker.send(word);
   });
 });
